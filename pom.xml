@@ -58,6 +58,11 @@
             <id>codemc-repo</id>
             <url>https://repo.codemc.org/repository/maven-public/</url>
         </repository>
+
+        <repository>
+            <id>tecnocraft-public</id>
+            <url>https://repo.tecnocraft.net/repository/public/</url>
+        </repository>
     </repositories>
 
     <dependencies>
@@ -226,17 +231,16 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.2</version>
+                <version>3.8.1</version>
                 <configuration>
                     <source>1.8</source>
                     <target>1.8</target>
                 </configuration>
             </plugin>
-
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
-                <version>3.2.0</version>
+                <version>3.2.4</version>
                 <executions>
                     <execution>
                         <phase>package</phase>
@@ -244,35 +248,8 @@
                             <goal>shade</goal>
                         </goals>
                         <configuration>
-                            <filters>
-                                <filter>
-                                    <artifact>*:*</artifact>
-                                    <excludes>
-                                        <exclude>META-INF/*.SF</exclude>
-                                        <exclude>META-INF/*.DSA</exclude>
-                                        <exclude>META-INF/*.RSA</exclude>
-                                    </excludes>
-                                </filter>
-                            </filters>
-                            <relocations>
-                                <relocation>
-                                    <pattern>com.google.common</pattern>
-                                    <shadedPattern>com.trophonix.tradeplus.shaded.guava</shadedPattern>
-                                </relocation>
-                                <relocation>
-                                    <pattern>co.aikar.taskchain</pattern>
-                                    <shadedPattern>com.trophonix.tradeplus.shaded.taskchain</shadedPattern>
-                                </relocation>
-                                <relocation>
-                                    <pattern>net.wesjd.anvilgui</pattern>
-                                    <shadedPattern>com.trophonix.tradeplus.shaded.anvilgui</shadedPattern>
-                                </relocation>
-                                <relocation>
-                                    <pattern>org.codemc.worldguardwrapper</pattern>
-                                    <shadedPattern>com.trophonix.tradeplus.shaded.worldguardwrapper</shadedPattern>
-                                </relocation>
-                            </relocations>
-                            <minimizeJar>true</minimizeJar>
+                            <createDependencyReducedPom>false
+                            </createDependencyReducedPom>
                         </configuration>
                     </execution>
                 </executions>
