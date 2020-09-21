@@ -1,103 +1,74 @@
 package com.trophonix.tradeplus.commands;
 
 import com.trophonix.tradeplus.TradePlus;
-import lombok.Getter;
+import com.trophonix.tradeplus.trade.Trade;
+import com.trophonix.tradeplus.util.Perms;
+import net.tecnocraft.utils.utils.SubCommandFramework;
 import org.bukkit.Bukkit;
-import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
-import org.bukkit.event.Cancellable;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.Listener;
-import org.bukkit.event.player.PlayerCommandPreprocessEvent;
-import org.bukkit.event.server.ServerCommandEvent;
+import org.bukkit.entity.Player;
+import org.bukkit.plugin.java.JavaPlugin;
 
-import java.util.ArrayList;
-import java.util.List;
+public class CommandHandler extends SubCommandFramework {
 
-public class CommandHandler implements Listener, CommandExecutor {
+	public CommandHandler(JavaPlugin plugin, String label, String... aliases) {
+		super(plugin, label, aliases);
+	}
 
-  @Getter private List<Command> commands = new ArrayList<>();
+	private static final TradePlus pl = TradePlus.getInstance();
 
-  public CommandHandler(TradePlus pl, boolean compatMode) {
-    if (!compatMode) pl.getServer().getPluginManager().registerEvents(this, pl);
-    try {
-      Class.forName("org.bukkit.event.server.TabCompleteEvent");
-      Bukkit.getPluginManager()
-          .registerEvents(
-              new CommandHandler.TabCompleter() {
-                @Override
-                public List<String> getCompletions(
-                    CommandSender sender, String cmd, String[] args, String buffer) {
-                  Command command =
-                      commands.stream().filter(c -> c.isAlias(cmd)).findFirst().orElse(null);
-                  return command != null ? command.onTabComplete(sender, args, buffer) : null;
-                }
-              },
-              pl);
-    } catch (ClassNotFoundException ignored) {
-    }
-  }
+	@Override
+	public void noArgs(CommandSender sender) {
+		this.sendHelp(sender);
+	}
 
-  public void add(Command command) {
-    commands.add(command);
-  }
+	@SubCommand("reload")
+	@SubCommandMinArgs(0)
+	@SubCommandPermission(Perms.ADMIN)
+	@SubCommandDescription("Ricarica il plugin")
+	public void reload(CommandSender sender, String label, String[] args) {
+		pl.reload();
+		pl.getTradeConfig().getAdminConfigReloaded().send(sender);
+	}
 
-  public void clear() {
-    commands.clear();
-  }
+	@SubCommand("force")
+	@SubCommandMinArgs(2)
+	@SubCommandPermission(Perms.ADMIN)
+	@SubCommandDescription("Forza un trade fra 2 giocatori")
+	@SubCommandUsage("<player1> <player>")
+	public void force(CommandSender sender, String label, String[] args) {
+		Player p1 = Bukkit.getPlayer(args[0]);
+		Player p2 = Bukkit.getPlayer(args[1]);
+		if (p1 == null || p2 == null || !p1.isOnline() || !p2.isOnline() || p1.equals(p2)) {
+			pl.getTradeConfig().getAdminInvalidPlayers().send(sender);
+			return;
+		}
+		pl.getTradeConfig().getAdminForcedTrade().send(sender, "%PLAYER1%", p1.getName(), "%PLAYER2%", p2.getName());
+		pl.getTradeConfig().getForcedTrade().send(p1, "%PLAYER%", p2.getName());
+		pl.getTradeConfig().getForcedTrade().send(p2, "%PLAYER%", p1.getName());
+		Trade trade = new Trade(p1, p2);
+		if (sender instanceof Player && !(sender.equals(p1) || sender.equals(p2)))
+			((Player) sender).openInventory(trade.getSpectatorInv());
+	}
 
-  @Override
-  public boolean onCommand(
-      CommandSender sender, org.bukkit.command.Command command, String label, String[] args) {
-    String[] cmd = new String[args.length + 1];
-    cmd[0] = label;
-    System.arraycopy(args, 0, cmd, 1, args.length);
-    testAndRun(null, sender, cmd);
-    return true;
-  }
-
-  @EventHandler(ignoreCancelled = true)
-  public void onCommandEvent(PlayerCommandPreprocessEvent event) {
-    String[] cmd = event.getMessage().substring(1).split("\\s+");
-    testAndRun(event, event.getPlayer(), cmd);
-  }
-
-  @EventHandler(ignoreCancelled = true)
-  public void onServerCommand(ServerCommandEvent event) {
-    String[] cmd = event.getCommand().split("\\s+");
-    testAndRun(event, event.getSender(), cmd);
-  }
-
-  private void testAndRun(Cancellable event, CommandSender sender, String[] cmd) {
-    if (cmd.length > 0) {
-      String[] args = new String[cmd.length - 1];
-      System.arraycopy(cmd, 1, args, 0, cmd.length - 1);
-      commands.stream()
-          .filter(command -> command.isAlias(cmd[0]))
-          .findFirst()
-          .ifPresent(
-              command -> {
-                command.onCommand(sender, args);
-                if (event != null) event.setCancelled(true);
-              });
-    }
-  }
-
-  private abstract class TabCompleter implements Listener {
-
-    @EventHandler
-    public void onTabComplete(org.bukkit.event.server.TabCompleteEvent event) {
-      String[] cmd = event.getBuffer().split("\\s+");
-      if (cmd.length > 0) {
-        String[] args = new String[cmd.length - 1];
-        System.arraycopy(cmd, 1, args, 0, cmd.length - 1);
-        List<String> completions =
-            getCompletions(event.getSender(), cmd[0], args, event.getBuffer());
-        if (completions != null) event.setCompletions(completions);
-      }
-    }
-
-    protected abstract List<String> getCompletions(
-        CommandSender sender, String command, String[] args, String buffer);
-  }
+	@SubCommand("spectate")
+	@SubCommandMinArgs(1)
+	@SubCommandPermission(Perms.ADMIN)
+	@SubCommandDescription("Specta trade in corso.")
+	@SubCommandUsage("<player(s)>>")
+	public void spectate(CommandSender sender, String label, String[] args) {
+		Player staff = Validator.getPlayerSender(sender);
+		Player player = Bukkit.getPlayer(args[0]);
+		if (player == null || !player.isOnline()) {
+			pl.getTradeConfig().getAdminInvalidPlayers().send(sender);
+			return;
+		}
+		Trade trade = pl.getTrade(player);
+		if (trade == null) {
+			pl.getTradeConfig().getAdminNoTrade().send(staff);
+		}
+		else {
+			staff.openInventory(trade.getSpectatorInv());
+		}
+	}
 }
