@@ -1,5 +1,6 @@
 package com.trophonix.tradeplus.commands;
 
+import com.Ben12345rocks.VotingPlugin.Main;
 import com.trophonix.tradeplus.TradePlus;
 import com.trophonix.tradeplus.events.TradeAcceptEvent;
 import com.trophonix.tradeplus.events.TradeRequestEvent;
@@ -22,6 +23,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import java.net.InetSocketAddress;
 import java.text.DecimalFormat;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.logging.Level;
 
 /**
  * Created by @zPirroZ3007 (github.com/zPirroZ3007) on 21 settembre, 2020
@@ -46,6 +48,7 @@ public class TradeCommandHandler extends CommandFramework {
 			sb.append("/" + label + " ");
 			for(String x : args)
 				sb.append(x).append(" ");
+			Main.getInstance().getLogger().log(Level.INFO, "§4[Avviso] §cIl comando " + sb.toString() + " ha impiegato " + end + "ms!");
 			for (Player player : Bukkit.getOnlinePlayers())
 				if (player.hasPermission("tecnoroleplay.admin"))
 					player.sendMessage("§4[Avviso] §cIl comando " + sb.toString() + " ha impiegato " + end + "ms!");
