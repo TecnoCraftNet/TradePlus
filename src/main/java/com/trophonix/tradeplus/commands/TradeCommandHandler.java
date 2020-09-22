@@ -40,7 +40,7 @@ public class TradeCommandHandler extends CommandFramework {
 
 	public void execute(CommandSender sender, String label, String[] args) {
 		long start = System.currentTimeMillis();
-		execute(sender, label, args);
+		execute2(sender, label, args);
 		long end = System.currentTimeMillis() - start;
 
 		if (end > 50) {
