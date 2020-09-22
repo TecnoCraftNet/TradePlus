@@ -11,8 +11,10 @@ import com.trophonix.tradeplus.util.MsgUtils;
 import com.trophonix.tradeplus.util.PlayerUtil;
 import net.tecnocraft.utils.utils.CommandFramework;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
+import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -34,8 +36,23 @@ public class TradeCommandHandler extends CommandFramework {
 		super(plugin, label);
 	}
 
-	@Override
 	public void execute(CommandSender sender, String label, String[] args) {
+		long start = System.currentTimeMillis();
+		execute(sender, label, args);
+		long end = System.currentTimeMillis() - start;
+
+		if (end > 50) {
+			StringBuilder sb = new StringBuilder();
+			sb.append("/" + label + " ");
+			for(String x : args)
+				sb.append(x).append(" ");
+			for (Player player : Bukkit.getOnlinePlayers())
+				if (player.hasPermission("tecnoroleplay.admin"))
+					player.sendMessage("§4[Avviso] §cIl comando " + sb.toString() + " ha impiegato " + end + "ms!");
+		}
+	}
+
+	public void execute2(CommandSender sender, String label, String[] args) {
 
 		Validator.notCondition(args.length == 1, "Parametri errati! Utilizza: §7/trade <nome>");
 		final Player player = Validator.getPlayerSender(sender);
