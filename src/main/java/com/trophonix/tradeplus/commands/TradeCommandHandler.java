@@ -45,7 +45,7 @@ public class TradeCommandHandler extends CommandFramework {
 
 		if (end > 50) {
 			StringBuilder sb = new StringBuilder();
-			sb.append("/" + label + " ");
+			sb.append("/").append(label).append(" ");
 			for(String x : args)
 				sb.append(x).append(" ");
 			Main.getInstance().getLogger().log(Level.INFO, "§4[Avviso] §cIl comando " + sb.toString() + " ha impiegato " + end + "ms!");
