@@ -11,13 +11,11 @@ import com.trophonix.tradeplus.trade.TradeRequest;
 import com.trophonix.tradeplus.util.MsgUtils;
 import com.trophonix.tradeplus.util.PlayerUtil;
 import net.tecnocraft.utils.utils.CommandFramework;
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-import org.bukkit.GameMode;
-import org.bukkit.Location;
+import org.bukkit.*;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.net.InetSocketAddress;
@@ -46,7 +44,7 @@ public class TradeCommandHandler extends CommandFramework {
 		if (end > 50) {
 			StringBuilder sb = new StringBuilder();
 			sb.append("/").append(label).append(" ");
-			for(String x : args)
+			for (String x : args)
 				sb.append(x).append(" ");
 			Main.getInstance().getLogger().log(Level.INFO, "§4[Avviso] §cIl comando " + sb.toString() + " ha impiegato " + end + "ms!");
 			for (Player player : Bukkit.getOnlinePlayers())
@@ -198,7 +196,7 @@ public class TradeCommandHandler extends CommandFramework {
 				final TradeRequest request = new TradeRequest(player, receiver);
 				requests.add(request);
 				pl.getTradeConfig().getRequestSent().send(player, "%PLAYER%", receiver.getName());
-				pl.getTradeConfig().getRequestReceived().setOnClick("/trade " + player.getName()).send(receiver, "%PLAYER%", player.getName());
+				pl.getTradeConfig().getRequestReceived().setOnClick("/trade " + player.getName()).send(receiver, "%PLAYER%", hasPassaMontagna(player) ? "Anonimo" : player.getName());
 				Bukkit.getScheduler().runTaskLater(pl, () -> {
 					boolean was = requests.remove(request);
 					if (player.isOnline() && was) {
@@ -209,5 +207,18 @@ public class TradeCommandHandler extends CommandFramework {
 			return;
 		}
 		pl.getTradeConfig().getErrorsInvalidUsage().send(player);
+	}
+
+	public static boolean hasPassaMontagna(Player player) {
+		ItemStack helmet = player.getInventory().getHelmet();
+		if (helmet == null)
+			return false;
+		if (helmet.getType() != Material.FEATHER)
+			return false;
+		if (helmet.getItemMeta() == null)
+			return false;
+		if (!helmet.getItemMeta().hasDisplayName())
+			return false;
+		return helmet.getItemMeta().getDisplayName().equals("§9Passamontagna");
 	}
 }
