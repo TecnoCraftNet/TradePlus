@@ -37,23 +37,6 @@ public class TradeCommandHandler extends CommandFramework {
 	}
 
 	public void execute(CommandSender sender, String label, String[] args) {
-		long start = System.currentTimeMillis();
-		execute2(sender, label, args);
-		long end = System.currentTimeMillis() - start;
-
-		if (end > 50) {
-			StringBuilder sb = new StringBuilder();
-			sb.append("/").append(label).append(" ");
-			for (String x : args)
-				sb.append(x).append(" ");
-			Main.getInstance().getLogger().log(Level.INFO, "§4[Avviso] §cIl comando " + sb.toString() + " ha impiegato " + end + "ms!");
-			for (Player player : Bukkit.getOnlinePlayers())
-				if (player.hasPermission("tecnoroleplay.admin"))
-					player.sendMessage("§4[Avviso] §cIl comando " + sb.toString() + " ha impiegato " + end + "ms!");
-		}
-	}
-
-	public void execute2(CommandSender sender, String label, String[] args) {
 
 		Validator.notCondition(args.length == 1, "Parametri errati! Utilizza: §7/trade <nome>");
 		final Player player = Validator.getPlayerSender(sender);
