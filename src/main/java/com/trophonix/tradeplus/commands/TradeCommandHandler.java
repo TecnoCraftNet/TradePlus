@@ -153,7 +153,7 @@ public class TradeCommandHandler extends CommandFramework {
 				if (tradeAcceptEvent.isCancelled())
 					return;
 				pl.getTradeConfig().getAcceptSender().send(receiver, "%PLAYER%", player.getName());
-				pl.getTradeConfig().getAcceptReceiver().send(player, "%PLAYER%", receiver.getName());
+				pl.getTradeConfig().getAcceptReceiver().send(player, "%PLAYER%", hasPassaMontagna(receiver) ? "Anonimo" : receiver.getName());
 				new Trade(receiver, player);
 				requests.removeIf(req -> req.contains(player) && req.contains(receiver));
 			}
