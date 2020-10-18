@@ -3,6 +3,7 @@ package com.trophonix.tradeplus.util;
 import com.google.common.base.Preconditions;
 import com.trophonix.tradeplus.TradePlus;
 import lombok.Getter;
+import net.tecnocraft.utils.utils.ItemStackBuilder;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
@@ -121,16 +122,7 @@ public class ItemFactory {
   }
 
   static ItemStack getPlayerSkull(Player player, String displayName) {
-    ItemStack skull =
-        new ItemStack(Material.getMaterial(Sounds.version > 112 ? "PLAYER_HEAD" : "SKULL_ITEM"));
-    Preconditions.checkNotNull(skull, "Failed to load skull.");
-    if (Sounds.version < 113) skull.getData().setData((byte) 3);
-    SkullMeta meta = (SkullMeta) skull.getItemMeta();
-    meta.setDisplayName(ChatColor.translateAlternateColorCodes('&', displayName));
-    if (Sounds.version >= 112) meta.setOwningPlayer(player);
-    else meta.setOwner(player.getName());
-    skull.setItemMeta(meta);
-    return skull;
+    return new ItemStackBuilder().setItem(Material.PAPER, 1).setName("§9" + displayName).build();
   }
 
   public static ItemStack replaceInMeta(ItemStack item, String... replace) {

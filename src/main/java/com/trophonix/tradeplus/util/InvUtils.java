@@ -39,7 +39,7 @@ public class InvUtils {
 			inv.setItem(pl.getTradeConfig().getTheirAcceptSlot(), separator);
 		}
 		if (pl.getTradeConfig().isHeadEnabled())
-			inv.setItem(4, new ItemStackBuilder().setItem(Material.PLAYER_HEAD, 1).skullName(TradeCommandHandler.hasPassaMontagna(player2) ? "ADSOIMDIOMASOID" : player2.getName()).setName(pl.getTradeConfig().getHeadDisplayName().replace("%PLAYER%", TradeCommandHandler.hasPassaMontagna(player2) ? "Anonimo" : player2.getName())).build());
+			inv.setItem(4, new ItemStackBuilder().setItem(Material.PAPER, 1).setName(pl.getTradeConfig().getHeadDisplayName().replace("%PLAYER%", TradeCommandHandler.hasPassaMontagna(player2) ? "Anonimo" : player2.getName())).build());
 		return inv;
 	}
 
