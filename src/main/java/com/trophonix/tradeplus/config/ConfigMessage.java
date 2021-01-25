@@ -36,10 +36,10 @@ public class ConfigMessage {
     public void send(CommandSender player, String... replacements) {
         String hover = this.onHover;
         if (hover != null) {
-          hover = getString(hover, replacements);
+          hover = getString(hover, replacements, player);
         }
       for (String line : message) {
-        line = getString(line, replacements);
+        line = getString(line, replacements, player);
 
         if (onHover == null && onClick == null) {
                 player.sendMessage(line);
@@ -49,12 +49,12 @@ public class ConfigMessage {
         }
     }
 
-  private String getString(String hover, String[] replacements) {
+  private String getString(String hover, String[] replacements, CommandSender player) {
     for (int i = 0; i < replacements.length - 1; i += 2) {
         if (replacements[i].contains("%PLAYER")) {
             Player p = Bukkit.getPlayer(replacements[i + 1]);
             if (p != null)
-                hover = hover.replace(replacements[i], TradeCommandHandler.hasPassaMontagna(p) ? "Anonimo" : p.getName());
+                hover = hover.replace(replacements[i], TradeCommandHandler.hasPassaMontagna(p) && !player.hasPermission("tecnoroleplay.admin") ? "Anonimo" : p.getName());
             else
                 hover = hover.replace(replacements[i], replacements[i + 1]);
         } else hover = hover.replace(replacements[i], replacements[i + 1]);
