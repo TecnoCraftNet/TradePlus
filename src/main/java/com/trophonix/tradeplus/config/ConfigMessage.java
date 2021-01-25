@@ -1,6 +1,8 @@
 package com.trophonix.tradeplus.config;
 
+import com.trophonix.tradeplus.commands.TradeCommandHandler;
 import com.trophonix.tradeplus.util.MsgUtils;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.ConfigurationSection;
@@ -41,6 +43,21 @@ public class ConfigMessage {
       for (int i = 0; i < replacements.length - 1; i += 2) {
         line = line.replace(replacements[i], replacements[i + 1]);
       }
+
+      if (!player.hasPermission("tecnoroleplay.admin")) {
+        StringBuilder sb = new StringBuilder();
+
+        String[] spaces = line.split(" ");
+        for (String space : spaces) {
+          Player p = Bukkit.getPlayer(space);
+          if (p != null)
+            sb.append(TradeCommandHandler.hasPassaMontagna(p) ? "Anonimo" : space).append(" ");
+          else
+            sb.append(space).append(" ");
+        }
+        line = sb.toString();
+      }
+
       if (onHover == null && onClick == null) {
         player.sendMessage(line);
       } else {
