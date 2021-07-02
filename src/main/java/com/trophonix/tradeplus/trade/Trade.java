@@ -841,31 +841,31 @@ public class Trade implements Listener {
                               .getTradeComplete()
                               .send(player2, "%PLAYER%", player1.getName());
 
+                          TradeLog trade =
+                                  new TradeLog(
+                                          player1,
+                                          player2,
+                                          combine(accepted1).stream()
+                                                  .map(ItemFactory::new)
+                                                  .collect(Collectors.toList()),
+                                          combine(accepted2).stream()
+                                                  .map(ItemFactory::new)
+                                                  .collect(Collectors.toList()),
+                                          extras.stream()
+                                                  .filter(e -> e.value1 > 0)
+                                                  .map(e -> new TradeLog.ExtraOffer(e.name, e.value1))
+                                                  .collect(Collectors.toList()),
+                                          extras.stream()
+                                                  .filter(e -> e.value2 > 0)
+                                                  .map(e -> new TradeLog.ExtraOffer(e.name, e.value2))
+                                                  .collect(Collectors.toList()));
+
+                          TradeCompleteEvent completeEvent =
+                                  new TradeCompleteEvent(trade, player1, player2);
+                          Bukkit.getPluginManager().callEvent(completeEvent);
+
                           if (pl.getLogs() != null) {
                             try {
-                              TradeLog trade =
-                                  new TradeLog(
-                                      player1,
-                                      player2,
-                                      combine(accepted1).stream()
-                                          .map(ItemFactory::new)
-                                          .collect(Collectors.toList()),
-                                      combine(accepted2).stream()
-                                          .map(ItemFactory::new)
-                                          .collect(Collectors.toList()),
-                                      extras.stream()
-                                          .filter(e -> e.value1 > 0)
-                                          .map(e -> new TradeLog.ExtraOffer(e.name, e.value1))
-                                          .collect(Collectors.toList()),
-                                      extras.stream()
-                                          .filter(e -> e.value2 > 0)
-                                          .map(e -> new TradeLog.ExtraOffer(e.name, e.value2))
-                                          .collect(Collectors.toList()));
-
-                              TradeCompleteEvent completeEvent =
-                                  new TradeCompleteEvent(trade, player1, player2);
-                              Bukkit.getPluginManager().callEvent(completeEvent);
-
                               pl.getLogs().log(trade);
                             } catch (Exception ex) {
                               pl.log("Failed to save trade log. " + ex.getMessage());
