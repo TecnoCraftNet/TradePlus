@@ -2,6 +2,7 @@ package com.trophonix.tradeplus.trade;
 
 import com.pirroproductions.devutils.inventory.ItemBuilder;
 import com.tecnoroleplay.api.events.QuickActionEvent;
+import com.tecnoroleplay.api.game.Roleplayer;
 import com.tecnoroleplay.api.hooks.ItemsAdder;
 import com.trophonix.tradeplus.TradePlus;
 import com.trophonix.tradeplus.events.TradeAcceptEvent;
@@ -36,6 +37,7 @@ public class TradeListener implements Listener {
         if (!event.hasEntity()) return;
         if (!(event.getEntity() instanceof Player receiver)) return;
 
+        var roleplayer = Roleplayer.of(player);
         var icon = ItemBuilder.of(ItemsAdder.getCustomItem("icon_crafting"))
                 .name("§6Scambia")
                 .desc("§7Scambia con il cittadino");
@@ -129,7 +131,8 @@ public class TradeListener implements Listener {
                 if (tradeAcceptEvent.isCancelled())
                     return;
                 pl.getTradeConfig().getAcceptSender().send(receiver, "%PLAYER%", player.getName());
-                pl.getTradeConfig().getAcceptReceiver().send(player, "%PLAYER%", hasPassaMontagna(receiver) ? "Anonimo" : receiver.getName());
+                pl.getTradeConfig().getAcceptReceiver().send(player,
+                        "%PLAYER%", hasPassaMontagna(receiver) ? "Anonimo" : receiver.getName());
                 new Trade(receiver, player);
                 requests.removeIf(req -> req.contains(player) && req.contains(receiver));
             } else {
@@ -154,13 +157,15 @@ public class TradeListener implements Listener {
                 final TradeRequest request = new TradeRequest(player, receiver);
                 requests.add(request);
                 pl.getTradeConfig().getRequestSent().send(player, "%PLAYER%", receiver.getName());
+                pl.getTradeConfig().getRequestReceived().send(receiver, "%PLAYER%", player.getName(),
+                        "%SEX%", roleplayer.getGender() == Roleplayer.Gender.FEMALE ? "lei" : "lui");
 
                 Bukkit.getScheduler().runTaskLater(pl, () -> {
                     boolean was = requests.remove(request);
                     if (player.isOnline() && was) {
                         pl.getTradeConfig().getExpired().send(player, "%PLAYER%", receiver.getName());
                     }
-                }, 20 * pl.getTradeConfig().getRequestCooldownSeconds());
+                }, 20L * pl.getTradeConfig().getRequestCooldownSeconds());
             }
         });
     }
