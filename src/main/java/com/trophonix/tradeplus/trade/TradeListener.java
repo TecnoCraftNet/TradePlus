@@ -38,9 +38,10 @@ public class TradeListener implements Listener {
         if (!(event.getEntity() instanceof Player receiver)) return;
 
         var roleplayer = Roleplayer.of(player);
+        var roleplayerTarget = Roleplayer.of(receiver);
         var icon = ItemBuilder.of(ItemsAdder.getCustomItem("icon_crafting"))
                 .name("§6Scambia")
-                .desc("§7Scambia %s".formatted(roleplayer.getGender() == Roleplayer.Gender.FEMALE ? "con la cittadina" : "con il cittadino"));
+                .desc("§7Scambia %s".formatted(roleplayerTarget.getGender() == Roleplayer.Gender.FEMALE ? "con la cittadina" : "con il cittadino"));
 
         event.add(icon, () -> {
             try {
