@@ -10,9 +10,11 @@ import com.trophonix.tradeplus.hooks.WorldGuardHook;
 import com.trophonix.tradeplus.logging.Logs;
 import com.trophonix.tradeplus.trade.InteractListener;
 import com.trophonix.tradeplus.trade.Trade;
+import com.trophonix.tradeplus.trade.TradeListener;
 import com.trophonix.tradeplus.util.InvUtils;
 import com.trophonix.tradeplus.util.Sounds;
 import lombok.Getter;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -84,6 +86,8 @@ public class TradePlus extends JavaPlugin {
 			}
 			new ExcessChestListener(this);
 		}).execute();
+
+		Bukkit.getPluginManager().registerEvents(new TradeListener(), this);
 	}
 
 	@Override

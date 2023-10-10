@@ -33,13 +33,13 @@ public class TradeCommand extends Command {
   public TradeCommand(TradePlus pl) {
     super(
         new ArrayList<String>() {
-          {
-            add("trade");
-            if (pl.getTradeConfig().getAliases() != null) {
-              addAll(pl.getTradeConfig().getAliases());
-            }
-          }
-        });
+              {
+                add("trade");
+                if (pl.getTradeConfig().getAliases() != null) {
+                  addAll(pl.getTradeConfig().getAliases());
+                }
+              }
+            });
     this.pl = pl;
   }
 

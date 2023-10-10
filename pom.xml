@@ -63,6 +63,11 @@
             <id>tecnocraft-public</id>
             <url>https://repo.tecnocraft.net/repository/public/</url>
         </repository>
+
+        <repository>
+            <id>tecnocraft-repo</id>
+            <url>https://repo.tecnocraft.net/repository/maven-releases/</url>
+        </repository>
     </repositories>
 
     <dependencies>
@@ -77,6 +82,13 @@
             <artifactId>TecnoUtilities</artifactId>
             <version>1.0-SNAPSHOT</version>
             <scope>compile</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>com.tecnoroleplay</groupId>
+            <artifactId>api</artifactId>
+            <version>1.0-SNAPSHOT</version>
+            <scope>provided</scope>
         </dependency>
 
         <dependency>
@@ -240,8 +252,8 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.8.1</version>
                 <configuration>
-                    <source>1.8</source>
-                    <target>1.8</target>
+                    <source>16</source>
+                    <target>16</target>
                 </configuration>
             </plugin>
             <plugin>
