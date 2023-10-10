@@ -158,8 +158,8 @@ public class TradeListener implements Listener {
                 final TradeRequest request = new TradeRequest(player, receiver);
                 requests.add(request);
                 pl.getTradeConfig().getRequestSent().send(player, "%PLAYER%", receiver.getName());
-                pl.getTradeConfig().getRequestReceived().send(receiver, "%PLAYER%", player.getName(),
-                        "%SEX%", roleplayer.getGender() == Roleplayer.Gender.FEMALE ? "lei" : "lui");
+                pl.getTradeConfig().getRequestReceived().setOnClick("/trade " + player.getName()).send(receiver, "%PLAYER%", hasPassaMontagna(player) ? "Anonimo" : player.getName());
+
 
                 Bukkit.getScheduler().runTaskLater(pl, () -> {
                     boolean was = requests.remove(request);
