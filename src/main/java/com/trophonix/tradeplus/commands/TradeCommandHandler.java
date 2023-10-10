@@ -1,6 +1,7 @@
 package com.trophonix.tradeplus.commands;
 
 import com.pirroproductions.devutils.player.Players;
+import com.tecnoroleplay.api.hooks.ItemsAdder;
 import com.trophonix.tradeplus.TradePlus;
 import com.trophonix.tradeplus.events.TradeAcceptEvent;
 import com.trophonix.tradeplus.events.TradeRequestEvent;
@@ -152,7 +153,7 @@ public class TradeCommandHandler extends CommandFramework {
 				Bukkit.getPluginManager().callEvent(tradeAcceptEvent);
 				if (tradeAcceptEvent.isCancelled())
 					return;
-				pl.getTradeConfig().getAcceptSender().send(receiver, "%PLAYER%", player.getName());
+				pl.getTradeConfig().getAcceptSender().send(receiver, "%PLAYER%", hasPassaMontagna(player) ? "Anonimo" : player.getName());
 				pl.getTradeConfig().getAcceptReceiver().send(player, "%PLAYER%", hasPassaMontagna(receiver) ? "Anonimo" : receiver.getName());
 				new Trade(receiver, player);
 				requests.removeIf(req -> req.contains(player) && req.contains(receiver));
@@ -178,7 +179,7 @@ public class TradeCommandHandler extends CommandFramework {
 					return;
 				final TradeRequest request = new TradeRequest(player, receiver);
 				requests.add(request);
-				pl.getTradeConfig().getRequestSent().send(player, "%PLAYER%", receiver.getName());
+				pl.getTradeConfig().getRequestSent().send(player, "%PLAYER%",  hasPassaMontagna(receiver) ? "Anonimo" : receiver.getName());
 				pl.getTradeConfig().getRequestReceived().setOnClick("/trade " + player.getName()).send(receiver, "%PLAYER%", hasPassaMontagna(player) ? "Anonimo" : player.getName());
 				Bukkit.getScheduler().runTaskLater(pl, () -> {
 					boolean was = requests.remove(request);
@@ -194,15 +195,11 @@ public class TradeCommandHandler extends CommandFramework {
 
 	public static boolean hasPassaMontagna(Player player) {
 		ItemStack helmet = player.getInventory().getHelmet();
+
 		if (helmet == null)
 			return false;
-		if (helmet.getType() != Material.FEATHER)
-			return false;
-		if (helmet.getItemMeta() == null)
-			return false;
-		if (!helmet.getItemMeta().hasDisplayName())
-			return false;
-		return helmet.getItemMeta().getDisplayName().equals("§9Passamontagna");
+
+		return ItemsAdder.isCustomItem("passamontagna", helmet);
 	}
 
 }
