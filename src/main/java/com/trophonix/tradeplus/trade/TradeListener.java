@@ -2,7 +2,6 @@ package com.trophonix.tradeplus.trade;
 
 import com.pirroproductions.devutils.inventory.ItemBuilder;
 import com.tecnoroleplay.api.events.QuickActionEvent;
-import com.tecnoroleplay.api.game.Roleplayer;
 import com.tecnoroleplay.api.hooks.ItemsAdder;
 import com.trophonix.tradeplus.TradePlus;
 import com.trophonix.tradeplus.events.TradeAcceptEvent;
@@ -40,8 +39,6 @@ public class TradeListener implements Listener {
         if (!event.hasEntity()) return;
         if (!(event.getEntity() instanceof Player receiver)) return;
 
-        var roleplayer = Roleplayer.of(player);
-        var roleplayerTarget = Roleplayer.of(receiver);
         var icon = ItemBuilder.of(ItemsAdder.getCustomItem("icon_crafting"))
                 .name(Component.text("ᴇꜰꜰᴇᴛᴛᴜᴀ ᴜɴᴏ ꜱᴄᴀᴍʙɪᴏ").color(TextColor.fromHexString("#d79729")).decoration(TextDecoration.ITALIC, false))
                 .desc("§7ᴄʟɪᴄᴄᴀ ᴘᴇʀ ꜰᴀʀᴇ ᴜɴᴏ ꜱᴄᴀᴍʙɪᴏ", "§7ᴄᴏɴ ꞯᴜᴇꜱᴛᴏ ᴄɪᴛᴛᴀᴅɪɴᴏ.");
