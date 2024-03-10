@@ -39,7 +39,7 @@ public class TradeListener implements Listener {
         if (!event.hasEntity()) return;
         if (!(event.getEntity() instanceof Player receiver)) return;
 
-        var icon = ItemBuilder.of(ItemsAdder.getCustomItem("icon_crafting"))
+        var icon = ItemBuilder.of(ItemsAdder.getCustomItem("icon_invisible_tick"))
                 .name(Component.text("ᴇꜰꜰᴇᴛᴛᴜᴀ ᴜɴᴏ ꜱᴄᴀᴍʙɪᴏ").color(TextColor.fromHexString("#d79729")).decoration(TextDecoration.ITALIC, false))
                 .desc("§7ᴄʟɪᴄᴄᴀ ᴘᴇʀ ꜰᴀʀᴇ ᴜɴᴏ ꜱᴄᴀᴍʙɪᴏ", "§7ᴄᴏɴ ꞯᴜᴇꜱᴛᴏ ᴄɪᴛᴛᴀᴅɪɴᴏ.");
 
