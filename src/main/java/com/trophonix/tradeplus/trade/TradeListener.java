@@ -2,7 +2,6 @@ package com.trophonix.tradeplus.trade;
 
 import com.pirroproductions.devutils.inventory.ItemBuilder;
 import com.tecnoroleplay.api.events.QuickActionEvent;
-import com.tecnoroleplay.api.game.Roleplayer;
 import com.tecnoroleplay.api.hooks.ItemsAdder;
 import com.trophonix.tradeplus.TradePlus;
 import com.trophonix.tradeplus.events.TradeAcceptEvent;
@@ -10,6 +9,9 @@ import com.trophonix.tradeplus.events.TradeRequestEvent;
 import com.trophonix.tradeplus.hooks.FactionsHook;
 import com.trophonix.tradeplus.hooks.WorldGuardHook;
 import com.trophonix.tradeplus.util.PlayerUtil;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.TextColor;
+import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
@@ -37,13 +39,11 @@ public class TradeListener implements Listener {
         if (!event.hasEntity()) return;
         if (!(event.getEntity() instanceof Player receiver)) return;
 
-        var roleplayer = Roleplayer.of(player);
-        var roleplayerTarget = Roleplayer.of(receiver);
-        var icon = ItemBuilder.of(ItemsAdder.getCustomItem("icon_crafting"))
-                .name("§6Scambia")
-                .desc("§7Scambia %s".formatted(roleplayerTarget.getGender() == Roleplayer.Gender.FEMALE ? "con la cittadina" : "con il cittadino"));
+        var icon = ItemBuilder.of(ItemsAdder.getCustomItem("icon_invisible_tick"))
+                .name(Component.text("ᴇꜰꜰᴇᴛᴛᴜᴀ ᴜɴᴏ ꜱᴄᴀᴍʙɪᴏ").color(TextColor.fromHexString("#d79729")).decoration(TextDecoration.ITALIC, false))
+                .desc("§7ᴄʟɪᴄᴄᴀ ᴘᴇʀ ꜰᴀʀᴇ ᴜɴᴏ ꜱᴄᴀᴍʙɪᴏ", "§7ᴄᴏɴ ꞯᴜᴇꜱᴛᴏ ᴄɪᴛᴛᴀᴅɪɴᴏ.");
 
-        event.add(icon, () -> {
+        event.add(icon, "寧", () -> {
             try {
                 if (pl.getTradeConfig().isWorldguardTradingFlag()) {
                     if (Bukkit.getServer().getPluginManager().isPluginEnabled("WorldGuard")) {
