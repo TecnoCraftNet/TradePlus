@@ -44,6 +44,8 @@ public class TradeListener implements Listener {
                 .desc("§7ᴄʟɪᴄᴄᴀ ᴘᴇʀ ꜰᴀʀᴇ ᴜɴᴏ ꜱᴄᴀᴍʙɪᴏ", "§7ᴄᴏɴ ꞯᴜᴇꜱᴛᴏ ᴄɪᴛᴛᴀᴅɪɴᴏ.");
 
         event.add(icon, "寧", () -> {
+            player.closeInventory();
+            
             try {
                 if (pl.getTradeConfig().isWorldguardTradingFlag()) {
                     if (Bukkit.getServer().getPluginManager().isPluginEnabled("WorldGuard")) {
