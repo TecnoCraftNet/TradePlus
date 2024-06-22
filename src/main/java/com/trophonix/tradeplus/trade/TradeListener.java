@@ -2,6 +2,7 @@ package com.trophonix.tradeplus.trade;
 
 import com.pirroproductions.devutils.inventory.ItemBuilder;
 import com.tecnoroleplay.api.events.QuickActionEvent;
+import com.tecnoroleplay.api.game.Roleplayer;
 import com.tecnoroleplay.api.hooks.ItemsAdder;
 import com.trophonix.tradeplus.TradePlus;
 import com.trophonix.tradeplus.events.TradeAcceptEvent;
@@ -21,7 +22,6 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerInteractAtEntityEvent;
 import org.bukkit.inventory.EquipmentSlot;
-import org.bukkit.inventory.ItemStack;
 
 import java.net.InetSocketAddress;
 import java.text.DecimalFormat;
@@ -35,9 +35,11 @@ public class TradeListener implements Listener {
     @EventHandler
     public void onTrade(QuickActionEvent event) {
         var player = event.getPlayer();
+        var rpPlayer = Roleplayer.of(player);
 
         if (!event.hasEntity()) return;
         if (!(event.getEntity() instanceof Player receiver)) return;
+        var rpReceiver = Roleplayer.of(receiver);
 
         var icon = ItemBuilder.of(ItemsAdder.getCustomItem("icon_invisible_tick"))
                 .name(Component.text("ᴇꜰꜰᴇᴛᴛᴜᴀ ᴜɴᴏ ꜱᴄᴀᴍʙɪᴏ").color(TextColor.fromHexString("#d79729")).decoration(TextDecoration.ITALIC, false))
@@ -90,14 +92,20 @@ public class TradeListener implements Listener {
                     pl.getTradeConfig().getErrorsCreative().send(player);
                     return;
                 } else if (receiver.getGameMode().equals(GameMode.CREATIVE)) {
-                    pl.getTradeConfig().getErrorsCreativeThem().send(player, "%PLAYER%", receiver.getName());
+                    pl.getTradeConfig().getErrorsCreativeThem().send(player, "%PLAYER%", rpReceiver.getFullName());
                     return;
                 }
             }
 
+            boolean accept = false;
+            for (TradeRequest req : requests) {
+                if (req.contains(player) && req.contains(receiver))
+                    accept = true;
+            }
+
             if (player.getWorld().equals(receiver.getWorld())) {
                 double amount = pl.getTradeConfig().getSameWorldRange();
-                if (amount != 0.0 && player.getLocation().distanceSquared(receiver.getLocation()) > Math.pow(amount, 2)) {
+                if ((amount != 0.0 && player.getLocation().distanceSquared(receiver.getLocation()) > Math.pow(amount, 2))) {
                     pl.getTradeConfig().getErrorsSameWorldRange().send(player, "%PLAYER%", receiver.getName(), "%AMOUNT%", format.format(amount));
                     return;
                 }
@@ -106,7 +114,7 @@ public class TradeListener implements Listener {
                     double amount = Math.pow(pl.getTradeConfig().getCrossWorldRange(), 2);
                     Location test = receiver.getLocation().clone();
                     test.setWorld(player.getWorld());
-                    if (amount != 0.0 && player.getLocation().distanceSquared(test) > amount) {
+                    if ((amount != 0.0 && player.getLocation().distanceSquared(test) > amount)) {
                         pl.getTradeConfig().getErrorsCrossWorldRange().send(player, "%PLAYER%", receiver.getName(), "%AMOUNT%", format.format(amount));
                         return;
                     }
@@ -123,19 +131,14 @@ public class TradeListener implements Listener {
                 }
             }
 
-            boolean accept = false;
-            for (TradeRequest req : requests) {
-                if (req.contains(player) && req.contains(receiver))
-                    accept = true;
-            }
             if (accept) {
                 TradeAcceptEvent tradeAcceptEvent = new TradeAcceptEvent(receiver, player);
                 Bukkit.getPluginManager().callEvent(tradeAcceptEvent);
                 if (tradeAcceptEvent.isCancelled())
                     return;
-                pl.getTradeConfig().getAcceptSender().send(receiver, "%PLAYER%", player.getName());
+                pl.getTradeConfig().getAcceptSender().send(receiver, "%PLAYER%", rpPlayer.getFullName());
                 pl.getTradeConfig().getAcceptReceiver().send(player,
-                        "%PLAYER%", hasPassaMontagna(receiver) ? "Anonimo" : receiver.getName());
+                        "%PLAYER%", rpReceiver.getFullName());
                 new Trade(receiver, player);
                 requests.removeIf(req -> req.contains(player) && req.contains(receiver));
             } else {
@@ -159,13 +162,13 @@ public class TradeListener implements Listener {
                     return;
                 final TradeRequest request = new TradeRequest(player, receiver);
                 requests.add(request);
-                pl.getTradeConfig().getRequestSent().send(player, "%PLAYER%",  hasPassaMontagna(receiver) ? "Anonimo" : receiver.getName());
-                pl.getTradeConfig().getRequestReceived().setOnClick("/trade " + player.getName()).send(receiver, "%PLAYER%", hasPassaMontagna(player) ? "Anonimo" : player.getName());
+                pl.getTradeConfig().getRequestSent().send(player, "%PLAYER%", rpReceiver.getFullName());
+                pl.getTradeConfig().getRequestReceived().setOnClick("/trade " + player.getName()).send(receiver, "%PLAYER%", rpPlayer.getFullName());
 
                 Bukkit.getScheduler().runTaskLater(pl, () -> {
                     boolean was = requests.remove(request);
                     if (player.isOnline() && was) {
-                        pl.getTradeConfig().getExpired().send(player, "%PLAYER%", receiver.getName());
+                        pl.getTradeConfig().getExpired().send(player, "%PLAYER%", rpReceiver.getFullName());
                     }
                 }, 20L * pl.getTradeConfig().getRequestCooldownSeconds());
             }
@@ -181,6 +184,8 @@ public class TradeListener implements Listener {
         if (!event.getHand().equals(EquipmentSlot.HAND)) return;
         if (player.getInventory().getItemInMainHand().getType() != Material.AIR) return;
 
+        var rpPlayer = Roleplayer.of(player);
+        var rpReceiver = Roleplayer.of(receiver);
 
         for (TradeRequest req : requests)
             if (req.sender == player)
@@ -196,19 +201,11 @@ public class TradeListener implements Listener {
             Bukkit.getPluginManager().callEvent(tradeAcceptEvent);
             if (tradeAcceptEvent.isCancelled())
                 return;
-            pl.getTradeConfig().getAcceptSender().send(receiver, "%PLAYER%", hasPassaMontagna(player) ? "Anonimo" : player.getName());
-            pl.getTradeConfig().getAcceptReceiver().send(player, "%PLAYER%", hasPassaMontagna(receiver) ? "Anonimo" : receiver.getName());
+            pl.getTradeConfig().getAcceptSender().send(receiver, "%PLAYER%", rpPlayer.getName());
+            pl.getTradeConfig().getAcceptReceiver().send(player, "%PLAYER%", rpReceiver.getName());
             new Trade(receiver, player);
             requests.removeIf(req -> req.contains(player) && req.contains(receiver));
         }
     }
 
-    public static boolean hasPassaMontagna(Player player) {
-        ItemStack helmet = player.getInventory().getHelmet();
-
-        if (helmet == null)
-            return false;
-
-        return ItemsAdder.isCustomItem("passamontagna", helmet);
-    }
 }

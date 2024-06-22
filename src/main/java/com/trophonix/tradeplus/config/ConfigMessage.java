@@ -1,6 +1,6 @@
 package com.trophonix.tradeplus.config;
 
-import com.trophonix.tradeplus.commands.TradeCommandHandler;
+import com.tecnoroleplay.api.game.Roleplayer;
 import com.trophonix.tradeplus.util.MsgUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -54,7 +54,7 @@ public class ConfigMessage {
         if (replacements[i].contains("%PLAYER")) {
             Player p = Bukkit.getPlayer(replacements[i + 1]);
             if (p != null)
-                hover = hover.replace(replacements[i], TradeCommandHandler.hasPassaMontagna(p) && !player.hasPermission("tecnoroleplay.admin") ? "Anonimo" : p.getName());
+                hover = hover.replace(replacements[i], !player.hasPermission("tecnoroleplay.admin") ? Roleplayer.of(p).getFullName() : p.getName());
             else
                 hover = hover.replace(replacements[i], replacements[i + 1]);
         } else hover = hover.replace(replacements[i], replacements[i + 1]);

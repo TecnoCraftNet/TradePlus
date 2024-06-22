@@ -1,5 +1,6 @@
 package com.trophonix.tradeplus.trade;
 
+import com.tecnoroleplay.api.game.Roleplayer;
 import com.trophonix.tradeplus.TradePlus;
 import com.trophonix.tradeplus.events.TradeCompleteEvent;
 import com.trophonix.tradeplus.extras.*;
@@ -67,6 +68,13 @@ public class Trade implements Listener {
             })
         .async(
             () -> {
+
+              var rp1 = Roleplayer.of(player1).getFullName();
+              var rp2 = Roleplayer.of(player2).getFullName();
+
+              var name1 = rp1.equalsIgnoreCase(player1.getName()) ? player1.getName() : player1.getName() + " §c(%s)".formatted(rp1);
+              var name2 = rp2.equalsIgnoreCase(player2.getName()) ? player2.getName() : player2.getName() + " §c(%s)".formatted(rp2);
+
               if (pl.getTradeConfig().isSpectateEnabled()
                   && pl.getTradeConfig().isSpectateBroadcast())
                 Bukkit.getOnlinePlayers()
@@ -84,9 +92,9 @@ public class Trade implements Listener {
                                 .send(
                                     p,
                                     "%PLAYER1%",
-                                    player1.getName(),
+                                    name1 ,
                                     "%PLAYER2%",
-                                    player2.getName());
+                                    name2);
                           }
                         });
               if (pl.getConfig().getBoolean("extras.economy.enabled", true)

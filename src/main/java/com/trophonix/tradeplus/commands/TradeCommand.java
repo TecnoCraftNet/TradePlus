@@ -1,5 +1,6 @@
 package com.trophonix.tradeplus.commands;
 
+import com.tecnoroleplay.api.game.Roleplayer;
 import com.trophonix.tradeplus.TradePlus;
 import com.trophonix.tradeplus.events.TradeAcceptEvent;
 import com.trophonix.tradeplus.events.TradeRequestEvent;
@@ -50,6 +51,7 @@ public class TradeCommand extends Command {
       return;
     }
     final Player player = (Player) sender;
+    final Roleplayer rpPlayer = Roleplayer.of(player);
 
     try {
       if (pl.getTradeConfig().isWorldguardTradingFlag()) {
@@ -87,7 +89,7 @@ public class TradeCommand extends Command {
                   if (req.sender.isOnline()) {
                     pl.getTradeConfig()
                         .getTheyDenied()
-                        .send(req.sender, "%PLAYER%", player.getName());
+                        .send(req.sender, "%PLAYER%", rpPlayer.getFullName());
                   }
                 }
               });
@@ -97,6 +99,8 @@ public class TradeCommand extends Command {
         pl.getTradeConfig().getErrorsPlayerNotFound().send(player);
         return;
       }
+
+      final Roleplayer rpReceiver = Roleplayer.of(receiver);
 
       if (player == receiver) {
         pl.getTradeConfig().getErrorsSelfTrade().send(player);
@@ -119,18 +123,17 @@ public class TradeCommand extends Command {
           pl.getTradeConfig().getErrorsCreative().send(player);
           return;
         } else if (receiver.getGameMode().equals(GameMode.CREATIVE)) {
-          pl.getTradeConfig().getErrorsCreativeThem().send(player, "%PLAYER%", receiver.getName());
+          pl.getTradeConfig().getErrorsCreativeThem().send(player, "%PLAYER%", rpReceiver.getFullName());
           return;
         }
       }
 
       if (player.getWorld().equals(receiver.getWorld())) {
         double amount = pl.getTradeConfig().getSameWorldRange();
-        if (amount != 0.0
-            && player.getLocation().distanceSquared(receiver.getLocation()) > Math.pow(amount, 2)) {
+        if (amount != 0.0 && player.getLocation().distanceSquared(receiver.getLocation()) > Math.pow(amount, 2)) {
           pl.getTradeConfig()
               .getErrorsSameWorldRange()
-              .send(player, "%PLAYER%", receiver.getName(), "%AMOUNT%", format.format(amount));
+              .send(player, "%PLAYER%", rpReceiver.getFullName(), "%AMOUNT%", format.format(amount));
           return;
         }
       } else {
@@ -141,18 +144,18 @@ public class TradeCommand extends Command {
           if (amount != 0.0 && player.getLocation().distanceSquared(test) > amount) {
             pl.getTradeConfig()
                 .getErrorsCrossWorldRange()
-                .send(player, "%PLAYER%", receiver.getName(), "%AMOUNT%", format.format(amount));
+                .send(player, "%PLAYER%", rpReceiver.getFullName(), "%AMOUNT%", format.format(amount));
             return;
           }
         } else {
-          pl.getTradeConfig().getErrorsNoCrossWorld().send(player, "%PLAYER%", receiver.getName());
+          pl.getTradeConfig().getErrorsNoCrossWorld().send(player, "%PLAYER%", rpReceiver.getFullName());
           return;
         }
       }
 
       for (TradeRequest req : requests) {
         if (req.sender == player) {
-          pl.getTradeConfig().getErrorsWaitForExpire().send(player, "%PLAYER%", receiver.getName());
+          pl.getTradeConfig().getErrorsWaitForExpire().send(player, "%PLAYER%", rpReceiver.getFullName());
           return;
         }
       }
@@ -165,8 +168,8 @@ public class TradeCommand extends Command {
         TradeAcceptEvent tradeAcceptEvent = new TradeAcceptEvent(receiver, player);
         Bukkit.getPluginManager().callEvent(tradeAcceptEvent);
         if (tradeAcceptEvent.isCancelled()) return;
-        pl.getTradeConfig().getAcceptSender().send(receiver, "%PLAYER%", player.getName());
-        pl.getTradeConfig().getAcceptReceiver().send(player, "%PLAYER%", receiver.getName());
+        pl.getTradeConfig().getAcceptSender().send(receiver, "%PLAYER%", rpPlayer.getFullName());
+        pl.getTradeConfig().getAcceptReceiver().send(player, "%PLAYER%", rpReceiver.getFullName());
         new Trade(receiver, player);
         requests.removeIf(req -> req.contains(player) && req.contains(receiver));
       } else {
@@ -182,7 +185,7 @@ public class TradeCommand extends Command {
         if (permissionRequired && !receiver.hasPermission(acceptPermission)) {
           pl.getTradeConfig()
               .getErrorsNoPermsReceive()
-              .send(player, "%PLAYER%", receiver.getName());
+              .send(player, "%PLAYER%", rpReceiver.getFullName());
           return;
         }
 
@@ -191,21 +194,20 @@ public class TradeCommand extends Command {
         if (event.isCancelled()) return;
         final TradeRequest request = new TradeRequest(player, receiver);
         requests.add(request);
-        pl.getTradeConfig().getRequestSent().send(player, "%PLAYER%", receiver.getName());
+        pl.getTradeConfig().getRequestSent().send(player, "%PLAYER%", rpReceiver.getFullName());
         pl.getTradeConfig()
             .getRequestReceived()
             .setOnClick("/trade " + player.getName())
-            .send(receiver, "%PLAYER%", player.getName());
+            .send(receiver, "%PLAYER%", rpPlayer.getFullName());
         Bukkit.getScheduler()
             .runTaskLater(
                 pl,
                 () -> {
                   boolean was = requests.remove(request);
                   if (player.isOnline() && was) {
-                    pl.getTradeConfig().getExpired().send(player, "%PLAYER%", receiver.getName());
+                    pl.getTradeConfig().getExpired().send(player, "%PLAYER%", rpReceiver.getFullName());
                   }
-                },
-                20 * pl.getTradeConfig().getRequestCooldownSeconds());
+                }, 20L * pl.getTradeConfig().getRequestCooldownSeconds());
       }
       return;
     }
